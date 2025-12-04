@@ -849,6 +849,9 @@
   <data name="WasabiDownloadBlocksFromFullNode" xml:space="preserve">
     <value>Ginger从您控制的全节点同步区块数据。</value>
   </data>
+  <data name="NetBackendUri" xml:space="preserve">
+      <value>协调器 API 地址</value>
+  </data>
   <data name="BitcoinP2PEndpoint" xml:space="preserve">
     <value>Bitcoin P2P 节点地址</value>
   </data>

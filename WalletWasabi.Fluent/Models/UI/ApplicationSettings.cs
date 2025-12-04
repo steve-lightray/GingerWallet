@@ -39,6 +39,7 @@ public partial class ApplicationSettings : ReactiveObject
 
 	// Bitcoin
 	[AutoNotify] private Network _network;
+	[AutoNotify] private string _netBackendUri;
 	[AutoNotify] private FeeRateProviderSource _selectedFeeRateProviderSource;
 	[AutoNotify] private bool _startLocalBitcoinCoreOnStartup;
 	[AutoNotify] private string _localBitcoinCoreDataDir;
@@ -101,6 +102,7 @@ public partial class ApplicationSettings : ReactiveObject
 
 		// Bitcoin
 		_network = config.Network;
+		_netBackendUri = (config.Network == Network.Main?config.MainNetBackendUri:config.TestNetBackendUri);
 		_selectedFeeRateProviderSource = _startupConfig.FeeRateEstimationProvider;
 		_startLocalBitcoinCoreOnStartup = _startupConfig.StartLocalBitcoinCoreOnStartup;
 		_localBitcoinCoreDataDir = _startupConfig.LocalBitcoinCoreDataDir;
@@ -151,6 +153,7 @@ public partial class ApplicationSettings : ReactiveObject
 		this.WhenAnyValue(
 				x => x.EnableGpu,
 				x => x.Network,
+				x => x.NetBackendUri,
 				x => x.StartLocalBitcoinCoreOnStartup,
 				x => x.LocalBitcoinCoreDataDir,
 				x => x.StopLocalBitcoinCoreOnShutdown,
@@ -160,7 +163,7 @@ public partial class ApplicationSettings : ReactiveObject
 				x => x.UseTor,
 				x => x.TerminateTorOnExit,
 				x => x.DownloadNewVersion,
-				(_, _, _, _, _, _, _, _, _, _, _) => Unit.Default)
+				(_, _, _, _, _, _, _, _, _, _, _, _) => Unit.Default)
 			.Skip(1)
 			.ObserveOn(RxApp.MainThreadScheduler)
 			.Throttle(TimeSpan.FromMilliseconds(ThrottleTime))
@@ -291,65 +294,76 @@ public partial class ApplicationSettings : ReactiveObject
 		// Advanced
 		result = result with { EnableGpu = EnableGpu };
 
-		// Bitcoin
-		if (Network == config.Network)
+		// URL
+		if (config.Network == Network.Main && NetBackendUri != config.MainNetBackendUri)
 		{
-			if (EndPointParser.TryParse(BitcoinP2PEndPoint, Network.DefaultPort, out EndPoint? endPoint))
+			result = result with { MainNetBackendUri = NetBackendUri };
+		}
+
+		if (config.Network == Network.RegTest && NetBackendUri != config.TestNetBackendUri)
+		{
+			result = result with { TestNetBackendUri = NetBackendUri };
+		}
+
+		// Bitcoin
+			if (Network == config.Network)
 			{
+				if (EndPointParser.TryParse(BitcoinP2PEndPoint, Network.DefaultPort, out EndPoint? endPoint))
+				{
+					if (Network == Network.Main)
+					{
+						result = result with { MainNetBitcoinP2pEndPoint = endPoint };
+					}
+					else if (Network == Network.TestNet)
+					{
+						result = result with { TestNetBitcoinP2pEndPoint = endPoint };
+					}
+					else if (Network == Network.RegTest)
+					{
+						result = result with { RegTestBitcoinP2pEndPoint = endPoint };
+					}
+					else
+					{
+						throw new NotSupportedNetworkException(Network);
+					}
+				}
+
 				if (Network == Network.Main)
 				{
-					result = result with { MainNetBitcoinP2pEndPoint = endPoint };
+					result = result with { MainNetCoordinatorUri = CoordinatorUri };
 				}
 				else if (Network == Network.TestNet)
 				{
-					result = result with { TestNetBitcoinP2pEndPoint = endPoint };
+					result = result with { TestNetCoordinatorUri = CoordinatorUri };
 				}
 				else if (Network == Network.RegTest)
 				{
-					result = result with { RegTestBitcoinP2pEndPoint = endPoint };
+					result = result with { RegTestCoordinatorUri = CoordinatorUri };
 				}
 				else
 				{
 					throw new NotSupportedNetworkException(Network);
 				}
-			}
 
-			if (Network == Network.Main)
-			{
-				result = result with { MainNetCoordinatorUri = CoordinatorUri };
-			}
-			else if (Network == Network.TestNet)
-			{
-				result = result with { TestNetCoordinatorUri = CoordinatorUri };
-			}
-			else if (Network == Network.RegTest)
-			{
-				result = result with { RegTestCoordinatorUri = CoordinatorUri };
+				result = result with
+				{
+					StartLocalBitcoinCoreOnStartup = StartLocalBitcoinCoreOnStartup,
+					StopLocalBitcoinCoreOnShutdown = StopLocalBitcoinCoreOnShutdown,
+					LocalBitcoinCoreDataDir = Guard.Correct(LocalBitcoinCoreDataDir),
+					DustThreshold = DustThreshold,
+				};
 			}
 			else
 			{
-				throw new NotSupportedNetworkException(Network);
+				result = result with
+				{
+					Network = Network
+				};
+
+				BitcoinP2PEndPoint = result.GetBitcoinP2pEndPoint().ToString(defaultPort: -1);
+				CoordinatorUri = result.GetCoordinatorUri();
+				UseTor = Network != Network.RegTest ? Config.ObjectToTorMode(config.UseTor) : TorMode.Disabled;
 			}
-
-			result = result with
-			{
-				StartLocalBitcoinCoreOnStartup = StartLocalBitcoinCoreOnStartup,
-				StopLocalBitcoinCoreOnShutdown = StopLocalBitcoinCoreOnShutdown,
-				LocalBitcoinCoreDataDir = Guard.Correct(LocalBitcoinCoreDataDir),
-				DustThreshold = DustThreshold,
-			};
-		}
-		else
-		{
-			result = result with
-			{
-				Network = Network
-			};
-
-			BitcoinP2PEndPoint = result.GetBitcoinP2pEndPoint().ToString(defaultPort: -1);
-			CoordinatorUri = result.GetCoordinatorUri();
-			UseTor = Network != Network.RegTest ? Config.ObjectToTorMode(config.UseTor) : TorMode.Disabled;
-		}
 
 		// At RegTest, we don't override the original settings
 		if (Network != Network.RegTest)

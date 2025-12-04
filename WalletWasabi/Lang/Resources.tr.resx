@@ -2050,6 +2050,9 @@
     <data name="WasabiDownloadBlocksFromFullNode" xml:space="preserve">
         <value>Ginger, kontrol ettiğiniz tam bir Full Node'den indirilecektir.</value>
     </data>
+    <data name="NetBackendUri" xml:space="preserve">
+        <value>Koordinatör API Adresi</value>
+    </data>
     <data name="WebsiteClearnet" xml:space="preserve">
         <value>Web sitesi (Clearnet)</value>
     </data>

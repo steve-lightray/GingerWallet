@@ -849,6 +849,9 @@
   <data name="WasabiDownloadBlocksFromFullNode" xml:space="preserve">
     <value>A Ginger egy Full Node-tól tölt le blokkokat, amelyet te vezérelsz.</value>
   </data>
+  <data name="NetBackendUri" xml:space="preserve">
+    <value>Koordinátor API-cím</value>
+  </data>
   <data name="BitcoinP2PEndpoint" xml:space="preserve">
     <value>Bitcoin P2P végpont</value>
   </data>

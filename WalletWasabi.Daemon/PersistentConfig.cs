@@ -29,12 +29,12 @@ public record PersistentConfig : IConfigNg
 	[DefaultValue(Constants.BackendUri)]
 	[JsonPropertyName("MainNetBackendUri")]
 	[JsonConverter(typeof(MainNetBackendUriJsonConverter))]
-	public string MainNetBackendUri { get; init; } = Constants.BackendUri;
+	public string MainNetBackendUri { get; set; } = Constants.BackendUri;
 
 	[DefaultValue(Constants.TestnetBackendUri)]
 	[JsonPropertyName("TestNetClearnetBackendUri")]
 	[JsonConverter(typeof(TestNetBackendUriJsonConverter))]
-	public string TestNetBackendUri { get; init; } = Constants.TestnetBackendUri;
+	public string TestNetBackendUri { get; set; } = Constants.TestnetBackendUri;
 
 	[DefaultValue("http://localhost:37127/")]
 	[JsonPropertyName("RegTestBackendUri")]
@@ -242,6 +242,7 @@ public record PersistentConfig : IConfigNg
 	{
 		bool hasChanged = false;
 
+		/*
 		if (config.MainNetBackendUri != Constants.BackendUri || config.MainNetCoordinatorUri != Constants.BackendUri)
 		{
 			hasChanged = true;
@@ -251,6 +252,7 @@ public record PersistentConfig : IConfigNg
 				MainNetCoordinatorUri = Constants.BackendUri
 			};
 		}
+		*/
 
 		// Previous imports from Wasabi could increase this to 100. We do want to check and change this, even if we are not readFromWasabi.
 		if (config.AbsoluteMinInputCount > Constants.DefaultAbsoluteMinInputCount)

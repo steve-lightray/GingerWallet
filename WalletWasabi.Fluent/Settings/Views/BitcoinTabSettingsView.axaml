@@ -29,6 +29,16 @@
       </ComboBox>
     </DockPanel>
 
+    <DockPanel IsVisible="true"
+               ToolTip.Tip="{x:Static lang:Resources.NetBackendUri}">
+      <TextBlock Text="{x:Static lang:Resources.NetBackendUri}" />
+      <TextBox Text="{Binding Settings.NetBackendUri}">
+        <Interaction.Behaviors>
+          <TextBoxAutoSelectTextBehavior />
+        </Interaction.Behaviors>
+      </TextBox>
+    </DockPanel>
+
     <DockPanel>
       <TextBlock Text="{x:Static lang:Resources.RunBitcoinKnotsOnStartup}" />
       <ToggleSwitch IsChecked="{Binding Settings.StartLocalBitcoinCoreOnStartup}" />

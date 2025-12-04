@@ -6252,16 +6252,27 @@ namespace WalletWasabi.Lang {
                 return ResourceManager.GetString("WasabiDownloadBlocksFromFullNode", resourceCulture);
             }
         }
-        
+
+        /// <summary>
+        ///   Looks up a localized string similar to Ginger will download blocks from a full node you control..
+        /// </summary>
+        public static string NetBackendUri {
+            get {
+                return ResourceManager.GetString("NetBackendUri", resourceCulture);
+            }
+        }
+
         /// <summary>
         ///   Looks up a localized string similar to Website (Clearnet).
         /// </summary>
-        public static string WebsiteClearnet {
-            get {
+        public static string WebsiteClearnet
+        {
+            get
+            {
                 return ResourceManager.GetString("WebsiteClearnet", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Weeks.
         /// </summary>
